@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/png" href="/assets/kitty.png">
   <title>Editor - sillyweb.net</title>
-  <link rel="stylesheet" href="/css/base.css?v=5">
-  <link rel="stylesheet" href="/css/components.css?v=2">
-  <link rel="stylesheet" href="/css/modal.css?v=1">
-  <link rel="stylesheet" href="/css/editor.css?v=1">
-  <link rel="stylesheet" href="/css/editor-preview.css?v=1">
-  <link rel="stylesheet" href="/css/responsive.css?v=1">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/modal.css">
+  <link rel="stylesheet" href="/css/editor.css">
+  <link rel="stylesheet" href="/css/editor-preview.css">
+  <link rel="stylesheet" href="/css/responsive.css">
   <script src="/theme.js"></script>
   <script src="/vendor/monaco/vs/loader.js"></script>
 </head>
@@ -80,7 +80,10 @@
           <div class="preview-viewport">
             <p class="preview-notice" id="preview-notice" style="display:none"></p>
             <div class="device-frame" id="device-frame">
-              <div class="device-screen"><iframe id="preview" sandbox="allow-scripts allow-forms allow-popups allow-modals"></iframe></div>
+              <div class="device-screen">
+                <iframe id="preview" sandbox="allow-scripts allow-forms allow-popups allow-modals"></iframe>
+                <iframe id="preview-next" class="preview-back" sandbox="allow-scripts allow-forms allow-popups allow-modals"></iframe>
+              </div>
               <div class="resize-handle" data-corner="tl"></div>
               <div class="resize-handle" data-corner="tr"></div>
               <div class="resize-handle" data-corner="bl"></div>
@@ -115,14 +118,14 @@
     </div>
   </div>
 
-  <script src="/editor/state.js?v=1"></script>
-  <script src="/editor/monaco.js?v=1"></script>
-  <script src="/editor/modal.js?v=1"></script>
-  <script src="/editor/tree.js?v=1"></script>
-  <script src="/editor/actions.js?v=1"></script>
-  <script src="/editor/uploads.js?v=1"></script>
-  <script src="/editor/files.js?v=1"></script>
-  <script src="/editor/layout.js?v=1"></script>
-  <script src="/editor/boot.js?v=1"></script>
+  <script src="/editor/state.js"></script>
+  <script src="/editor/monaco.js"></script>
+  <script src="/editor/modal.js"></script>
+  <script src="/editor/tree.js"></script>
+  <script src="/editor/actions.js"></script>
+  <script src="/editor/uploads.js"></script>
+  <script src="/editor/files.js"></script>
+  <script src="/editor/layout.js"></script>
+  <script src="/editor/boot.js"></script>
 </body>
 </html>

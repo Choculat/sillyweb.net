@@ -69,7 +69,15 @@ document.addEventListener('themechange', (e) => {
 });
 function refreshPreview() {
   if (siteSuspended || !previewUrl) return;
-  preview.src = `${previewUrl}?t=${Date.now()}`;
+  if (previewPath && !files.some((f) => f.filename === previewPath)) previewPath = '';
+  const rel = previewPath.split('/').map(encodeURIComponent).join('/');
+  const back = previewFrames[1 - activeFrame];
+  back.onload = () => {
+    previewFrames[activeFrame].classList.add('preview-back');
+    back.classList.remove('preview-back');
+    activeFrame = 1 - activeFrame;
+  };
+  back.src = `${previewUrl}${rel}?t=${Date.now()}`;
 }
 const indent = (depth) => (0.5 + depth * 0.9) + 'rem';
 

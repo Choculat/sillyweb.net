@@ -16,7 +16,7 @@ function showEmptyState() {
   hideCodeEditor();
   binaryPreview.style.display = 'none';
   document.getElementById('empty-state').style.display = 'flex';
-  preview.src = 'about:blank';
+  previewFrames.forEach((f) => { f.src = 'about:blank'; });
 }
 
 async function openFile(f) {
@@ -25,6 +25,10 @@ async function openFile(f) {
   showEditorPane();
   updateTab();
   renderFiles();
+  if (/\.html?$/i.test(f.filename) && f.filename !== previewPath) {
+    previewPath = f.filename;
+    refreshPreview();
+  }
   if (isTextFile(f.filename)) {
     const res = await fetch(`/api/pages/${pageId}/files/${f.id}/content`);
     const data = await res.json();

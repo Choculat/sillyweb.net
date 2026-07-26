@@ -9,6 +9,7 @@ let selected = new Set();
 let anchorPath = null;
 let uploadDir = '';
 let previewUrl = '';
+let previewPath = '';
 let siteSuspended = false;
 let undoStack = [];
 let redoStack = [];
@@ -17,6 +18,9 @@ const codeEl = document.getElementById('code');
 const monacoContainer = document.getElementById('monaco-container');
 const binaryPreview = document.getElementById('binary-preview');
 const preview = document.getElementById('preview');
+const previewFrames = [preview, document.getElementById('preview-next')];
+let activeFrame = 0;
+const setPreviewPointer = (value) => previewFrames.forEach((f) => { f.style.pointerEvents = value; });
 const menu = document.getElementById('context-menu');
 const uploadInput = document.getElementById('upload-input');
 

@@ -82,7 +82,7 @@ document.querySelectorAll('.resize-handle').forEach((handle) => {
     resizeStartY = e.clientY;
     resizeStartW = deviceFrame.offsetWidth;
     resizeStartH = deviceFrame.offsetHeight;
-    preview.style.pointerEvents = 'none';
+    setPreviewPointer('none');
     document.body.style.userSelect = 'none';
   });
 });
@@ -100,7 +100,7 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
   if (!resizingCorner) return;
   resizingCorner = null;
-  preview.style.pointerEvents = '';
+  setPreviewPointer('');
   document.body.style.userSelect = '';
   localStorage.setItem('mobileFrameWidth', deviceFrame.offsetWidth);
   localStorage.setItem('mobileFrameHeight', deviceFrame.offsetHeight);
@@ -110,7 +110,7 @@ let resizing = false;
 resizer.addEventListener('mousedown', (e) => {
   resizing = true;
   e.preventDefault();
-  preview.style.pointerEvents = 'none';
+  setPreviewPointer('none');
   document.body.style.userSelect = 'none';
 });
 document.addEventListener('mousemove', (e) => {
@@ -123,6 +123,6 @@ document.addEventListener('mousemove', (e) => {
 document.addEventListener('mouseup', () => {
   if (!resizing) return;
   resizing = false;
-  preview.style.pointerEvents = '';
+  setPreviewPointer('');
   document.body.style.userSelect = '';
 });
