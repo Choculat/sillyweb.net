@@ -1,0 +1,32 @@
+{
+  "name": "sillyweb.net",
+  "version": "1.0.0",
+  "description": "Free static page hosting",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "seed-admin": "node --env-file=.env scripts/seed-admin.js",
+    "test": "node test/editor.dom.test.js && node test/api.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Choculat/sillyweb.net.git"
+  },
+  "license": "ISC",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "bugs": {
+    "url": "https://github.com/Choculat/sillyweb.net/issues"
+  },
+  "homepage": "https://github.com/Choculat/sillyweb.net#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "monaco-editor": "^0.56.0",
+    "multer": "^2.2.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "playwright": "^1.62.0"
+  }
+}

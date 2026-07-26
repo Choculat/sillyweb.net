@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="/assets/kitty.png">
+  <meta name="description" content="A tiny, free place to keep a website you made yourself. Write your HTML, CSS and JavaScript in the browser, hit publish, and it lives at yourname.sillyweb.net.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="sillyweb.net">
+  <meta property="og:title" content="sillyweb.net, a small free home for handmade websites">
+  <meta property="og:description" content="Write it yourself in the browser, hit publish, and your page lives at yourname.sillyweb.net. Free, forever.">
+  <meta property="og:url" content="https://sillyweb.net/">
+  <meta property="og:image" content="https://sillyweb.net/assets/og.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="sillyweb.net on lined paper beside a pencil drawing of a sleepy cat">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="sillyweb.net, a small free home for handmade websites">
+  <meta name="twitter:description" content="Write it yourself in the browser, hit publish, and your page lives at yourname.sillyweb.net. Free, forever.">
+  <meta name="twitter:image" content="https://sillyweb.net/assets/og.png">
+  <title>Account - sillyweb.net</title>
+  <link rel="stylesheet" href="/css/base.css?v=5">
+  <link rel="stylesheet" href="/css/components.css?v=2">
+  <link rel="stylesheet" href="/css/modal.css?v=1">
+  <link rel="stylesheet" href="/css/responsive.css?v=1">
+  <script src="/theme.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <nav><a href="/">Home</a> <a href="/dashboard">Dashboard</a> <a href="#" id="signout">Sign out</a></nav>
+    <h1>Account</h1>
+    <p id="whoami"></p>
+
+    <h2>Settings</h2>
+    <label>Theme</label>
+    <select class="theme-select">
+      <option value="system">Match browser</option>
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+    </select>
+
+    <h2>Change email</h2>
+    <p><small>You'll get a verification link at the new address; your email won't change until you click it.</small></p>
+    <form id="change-email">
+      <input name="currentPassword" type="password" placeholder="Current password" required>
+      <input name="newEmail" type="email" placeholder="New email" required>
+      <button type="submit">Send verification link</button>
+    </form>
+    <p id="email-status"></p>
+
+    <h2>Change password</h2>
+    <form id="change-password">
+      <input name="currentPassword" type="password" placeholder="Current password" required>
+      <input name="newPassword" type="password" placeholder="New password" required>
+      <button type="submit">Update password</button>
+    </form>
+    <p id="pw-status"></p>
+  </div>
+
+  <script>
+    async function loadMe() {
+      const res = await fetch('/api/me');
+      const { user } = await res.json();
+      if (!user) return location.href = '/signin';
+      document.getElementById('whoami').textContent = `Signed in as ${user.username} (${user.email})`;
+    }
+
+    document.getElementById('change-password').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = Object.fromEntries(new FormData(e.target));
+      const res = await fetch('/api/change-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json();
+      document.getElementById('pw-status').textContent = res.ok ? 'Password updated.' : data.error;
+      if (res.ok) e.target.reset();
+    });
+
+    document.getElementById('change-email').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = Object.fromEntries(new FormData(e.target));
+      const res = await fetch('/api/change-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json();
+      document.getElementById('email-status').textContent = res.ok ? data.message : data.error;
+      if (res.ok) e.target.reset();
+    });
+
+    document.getElementById('signout').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/api/signout', { method: 'POST' });
+      location.href = '/';
+    });
+
+    loadMe();
+  </script>
+</body>
+</html>

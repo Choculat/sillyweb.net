@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="/assets/kitty.png">
+  <meta name="description" content="A tiny, free place to keep a website you made yourself. Write your HTML, CSS and JavaScript in the browser, hit publish, and it lives at yourname.sillyweb.net.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="sillyweb.net">
+  <meta property="og:title" content="sillyweb.net, a small free home for handmade websites">
+  <meta property="og:description" content="Write it yourself in the browser, hit publish, and your page lives at yourname.sillyweb.net. Free, forever.">
+  <meta property="og:url" content="https://sillyweb.net/">
+  <meta property="og:image" content="https://sillyweb.net/assets/og.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="sillyweb.net on lined paper beside a pencil drawing of a sleepy cat">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="sillyweb.net, a small free home for handmade websites">
+  <meta name="twitter:description" content="Write it yourself in the browser, hit publish, and your page lives at yourname.sillyweb.net. Free, forever.">
+  <meta name="twitter:image" content="https://sillyweb.net/assets/og.png">
+  <title>Dashboard - sillyweb.net</title>
+  <link rel="stylesheet" href="/css/base.css?v=5">
+  <link rel="stylesheet" href="/css/components.css?v=2">
+  <link rel="stylesheet" href="/css/modal.css?v=1">
+  <link rel="stylesheet" href="/css/responsive.css?v=1">
+  <script src="/theme.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <nav id="nav"><a href="/">Home</a> <a href="/account">Account</a> <a href="#" id="signout">Sign out</a></nav>
+    <h1>Your site</h1>
+    <p id="whoami"></p>
+    <p id="usage"></p>
+    <p class="error" id="error"></p>
+    <ul class="page-list" id="pages"></ul>
+
+    <div id="no-site" style="display:none">
+      <p>You don't have a site yet.</p>
+      <button type="button" id="create-site">Create my site</button>
+    </div>
+  </div>
+
+  <script>
+    let me = null;
+    let cnameTarget = 'custom.sillyweb.net';
+    let pages = [];
+    let pollTimer = null;
+
+    const ICONS = {
+      edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+      active: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+      pending: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></svg>',
+      error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 20 4 20Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="17.01"/></svg>',
+    };
+
+    async function loadMe() {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+      me = data.user;
+      if (!me) return location.href = '/signin';
+      document.getElementById('whoami').textContent = `Signed in as ${me.username} (${me.email})`;
+      if (me.is_admin) {
+        document.getElementById('signout').insertAdjacentHTML('beforebegin', '<a href="/admin">Admin</a> ');
+      }
+    }
+
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+
+    function formatMB(bytes) {
+      return (Math.max(0, bytes) / (1024 * 1024)).toFixed(1);
+    }
+
+    function siteUrl(p) {
+      return p.publicUrl;
+    }
+
+    function siteLabel(p) {
+      return p.publicUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    }
+
+    function domainBadge(p) {
+      if (!p.custom_domain) return '';
+      const icon = ICONS[p.custom_domain_status] || ICONS.pending;
+      return ` ${esc(p.custom_domain)} <span class="icon-inline">${icon}</span>`;
+    }
+
+    async function loadPages() {
+      const res = await fetch('/api/pages');
+      const data = await res.json();
+      pages = data.pages;
+      cnameTarget = data.domainCnameTarget || cnameTarget;
+      document.getElementById('usage').textContent =
+        `${formatMB(data.usedBytes)} MB / ${formatMB(data.maxBytes)} MB used`;
+      document.getElementById('no-site').style.display = pages.length ? 'none' : 'block';
+      const list = document.getElementById('pages');
+      list.innerHTML = '';
+      for (const p of pages) {
+        const li = document.createElement('li');
+        li.className = 'site-card';
+        li.innerHTML = `
+          <div class="site-header">
+            <a href="${siteUrl(p)}" target="_blank" class="site-name">${esc(siteLabel(p))}</a>
+            <a href="${siteUrl(p)}" target="_blank" class="view-link">${p.suspended ? 'suspended' : 'view ↗'}</a>
+          </div>
+          <div class="site-actions">
+            <a href="/editor/${p.id}" class="edit-link">edit</a>
+            <a href="/api/pages/${p.id}/download" class="download-link">download</a>
+            <a href="#" class="domain-toggle" data-id="${p.id}">domain${domainBadge(p)}</a>
+          </div>
+          <div class="domain-panel" id="domain-panel-${p.id}" style="display:none">
+            <p>To connect your own domain:</p>
+            <ol class="domain-steps">
+              <li>Open your domain's DNS settings, with whoever you registered it through.</li>
+              <li>Add a CNAME record pointing to <code>${cnameTarget}</code>.</li>
+              <li>Wait for it to propagate, usually just minutes but occasionally up to a day.</li>
+              <li>That's it. This page checks automatically and goes live as soon as it's detected.</li>
+            </ol>
+            <p class="domain-help"><a href="https://www.cloudflare.com/learning/dns/dns-records/dns-cname-record/" target="_blank">What's a CNAME record? ↗</a></p>
+            <input type="text" class="domain-input" data-id="${p.id}" placeholder="example.com" value="${esc(p.custom_domain || '')}">
+            <button type="button" class="domain-save" data-id="${p.id}">Save</button>
+            ${p.custom_domain ? `<button type="button" class="domain-remove" data-id="${p.id}">Remove</button>` : ''}
+            <p class="domain-status" id="domain-status-${p.id}">${
+              p.custom_domain_status === 'active' ? `${esc(p.custom_domain)} is connected and live.`
+              : p.custom_domain_status === 'error' ? `${esc(p.custom_domain)}: ${esc(p.custom_domain_error || 'something went wrong.')}`
+              : p.custom_domain ? `${esc(p.custom_domain)} is pending, waiting for its DNS to point here.`
+              : ''
+            }</p>
+          </div>`;
+        list.appendChild(li);
+      }
+
+      list.querySelectorAll('.domain-toggle').forEach((el) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          const panel = document.getElementById(`domain-panel-${el.dataset.id}`);
+          panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        });
+      });
+      list.querySelectorAll('.domain-save').forEach((el) => {
+        el.addEventListener('click', async () => {
+          const id = el.dataset.id;
+          const domain = list.querySelector(`.domain-input[data-id="${id}"]`).value.trim();
+          const res = await fetch(`/api/pages/${id}/domain`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ domain }) });
+          const data = await res.json();
+          if (!res.ok) { document.getElementById(`domain-status-${id}`).textContent = data.error; return; }
+          loadPages();
+        });
+      });
+      list.querySelectorAll('.domain-remove').forEach((el) => {
+        el.addEventListener('click', async () => {
+          await fetch(`/api/pages/${el.dataset.id}/domain`, { method: 'DELETE' });
+          loadPages();
+        });
+      });
+
+      clearTimeout(pollTimer);
+      if (pages.some((p) => p.custom_domain_status === 'pending')) {
+        pollTimer = setTimeout(loadPages, 5000);
+      }
+    }
+
+    document.getElementById('create-site').addEventListener('click', async () => {
+      const res = await fetch('/api/pages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+      const data = await res.json();
+      if (!res.ok) return document.getElementById('error').textContent = data.error;
+      loadPages();
+    });
+
+    document.getElementById('signout').addEventListener('click', async (e) => {
+      e.preventDefault();
+      await fetch('/api/signout', { method: 'POST' });
+      location.href = '/';
+    });
+
+    loadMe().then(loadPages);
+  </script>
+</body>
+</html>

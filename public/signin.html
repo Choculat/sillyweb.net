@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="/assets/kitty.png">
+  <meta name="description" content="A tiny, free place to keep a website you made yourself. Write your HTML, CSS and JavaScript in the browser, hit publish, and it lives at yourname.sillyweb.net.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="sillyweb.net">
+  <meta property="og:title" content="sillyweb.net, a small free home for handmade websites">
+  <meta property="og:description" content="Write it yourself in the browser, hit publish, and your page lives at yourname.sillyweb.net. Free, forever.">
+  <meta property="og:url" content="https://sillyweb.net/">
+  <meta property="og:image" content="https://sillyweb.net/assets/og.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="sillyweb.net on lined paper beside a pencil drawing of a sleepy cat">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="sillyweb.net, a small free home for handmade websites">
+  <meta name="twitter:description" content="Write it yourself in the browser, hit publish, and your page lives at yourname.sillyweb.net. Free, forever.">
+  <meta name="twitter:image" content="https://sillyweb.net/assets/og.png">
+  <title>Sign in - sillyweb.net</title>
+  <link rel="stylesheet" href="/css/base.css?v=5">
+  <link rel="stylesheet" href="/css/components.css?v=2">
+  <link rel="stylesheet" href="/css/modal.css?v=1">
+  <link rel="stylesheet" href="/css/responsive.css?v=1">
+  <script src="/theme.js"></script>
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+</head>
+<body class="centered-page">
+  <div class="wrap">
+    <nav><a href="/">Home</a> <a href="/signup">Sign up</a></nav>
+    <h1>Sign in</h1>
+    <p class="error" id="error"></p>
+    <p id="notice" style="display:none"></p>
+    <form id="form">
+      <input name="email" type="email" placeholder="Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <div class="h-captcha" data-sitekey="78bc11c6-ca7c-4336-8bb4-2f0ce506e810"></div>
+      <button type="submit">Sign in</button>
+    </form>
+    <p><a href="#" id="forgot">Forgot your password?</a></p>
+  </div>
+  <script>
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = Object.fromEntries(new FormData(e.target));
+      body.captcha = body['h-captcha-response'];
+      const res = await fetch('/api/signin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('error').textContent = data.error;
+        if (window.hcaptcha) hcaptcha.reset();
+        return;
+      }
+      location.href = '/dashboard';
+    });
+
+    document.getElementById('forgot').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = document.querySelector('input[name=email]').value;
+      if (!email) return document.getElementById('error').textContent = 'Enter your email above first, then click again.';
+      const captcha = (document.querySelector('[name=h-captcha-response]') || {}).value;
+      if (!captcha) return document.getElementById('error').textContent = 'Complete the captcha above first, then click again.';
+      const res = await fetch('/api/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, captcha }) });
+      const data = await res.json();
+      if (window.hcaptcha) hcaptcha.reset();
+      document.getElementById('error').textContent = '';
+      const notice = document.getElementById('notice');
+      notice.style.display = 'block';
+      notice.textContent = data.message;
+    });
+  </script>
+</body>
+</html>

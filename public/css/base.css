@@ -1,0 +1,129 @@
+:root {
+  --paper: #fdfcfa;
+  --panel: #ffffff;
+  --field: #ffffff;
+  --ink: #3a352c;
+  --muted: #a39c8c;
+  --line: #ece5d6;
+  --accent: #c1502e;
+}
+
+:root[data-theme="dark"] {
+  --paper: #1b1917;
+  --panel: #232019;
+  --field: #2a2621;
+  --ink: #e9e3d6;
+  --muted: #928a7a;
+  --line: #35302a;
+  --accent: #e0764f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+a { color: var(--accent); text-decoration: none; }
+
+body.centered-page { min-height: 100vh; display: flex; }
+.landing-wrap { padding-top: 0; padding-bottom: 0; }
+
+.wrap {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+.wrap.wide { max-width: 1200px; }
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  font-size: 0.9rem;
+}
+
+nav a {
+  color: var(--ink);
+  text-decoration: none;
+  line-height: 1;
+  border-bottom: 1px solid transparent;
+}
+nav a:hover { border-bottom-color: var(--ink); }
+
+h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2.2rem;
+  text-align: center;
+  margin: 0 0 0.4rem;
+}
+
+h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
+  margin: 3rem 0 1rem;
+  text-align: center;
+}
+
+p { color: var(--muted); text-align: center; }
+
+.tagline { margin-bottom: 2rem; }
+.hero-image { display: block; max-width: 100%; height: auto; margin: 0 auto; border-radius: 8px; }
+.image-credit { margin: 0.4rem 0 2rem; font-size: 0.8rem; }
+.image-credit a { color: var(--muted); }
+.image-credit a:hover { color: var(--accent); }
+
+label:where(:not(.monaco-editor *)) {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 1rem 0 0.25rem;
+}
+
+:root[data-theme="dark"] .monaco-editor .rename-input { color: #fff; }
+
+input:where(:not(.monaco-editor *)),
+textarea:where(:not(.monaco-editor *)),
+select:where(:not(.monaco-editor *)) {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+button:where(:not(.monaco-editor *)) {
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:where(:not(.monaco-editor *)):hover { filter: brightness(1.08); }
+
+small { color: var(--muted); }
+
+.error { color: var(--accent); text-align: center; font-size: 0.9rem; }
+
+.h-captcha { margin: 1rem 0; display: flex; justify-content: center; }

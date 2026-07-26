@@ -1,0 +1,40 @@
+@media (max-width: 700px) {
+  
+
+  nav { flex-wrap: wrap; row-gap: 0.5rem; }
+  .site-row { flex-wrap: wrap; row-gap: 0.4rem; }
+  .domain-panel .domain-input { width: 100%; }
+  .modal-box { width: auto; max-width: calc(100vw - 2rem); }
+
+  .ide-topbar { height: auto; flex-wrap: wrap; padding: 0.5rem 0.75rem; row-gap: 0.4rem; }
+  .ide-topbar-right { flex-wrap: wrap; row-gap: 0.4rem; }
+
+  .ide-topbar button.tree-toggle-btn { display: flex; }
+
+  .ide-tree {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    width: 80%;
+    max-width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
+  }
+  .ide-tree.open { transform: translateX(0); }
+
+  .ide-tree-backdrop.show {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  
+  .ide-main { flex-direction: column; }
+  .ide-editor { border-right: none; border-bottom: 1px solid var(--line); }
+  .ide-resizer { display: none !important; } 
+}

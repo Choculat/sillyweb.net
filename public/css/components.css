@@ -1,0 +1,65 @@
+.page-list { list-style: none; padding: 0; margin: 1rem 0; }
+.page-list a { color: var(--ink); }
+.page-list a:hover { color: var(--accent); }
+
+.site-card { padding: 0.85rem 0; border-bottom: 1px solid var(--line); }
+.site-header { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+.site-name { font-size: 1.05rem; color: var(--ink); }
+.site-name:hover { color: var(--accent); }
+.site-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; row-gap: 0.3rem; margin-top: 0.4rem; font-size: 0.85rem; }
+.site-actions a { color: var(--muted); }
+.site-actions a:hover { color: var(--accent); }
+.site-actions .domain-toggle { margin-left: auto; }
+.icon-inline { display: inline-flex; vertical-align: middle; color: inherit; }
+.icon-inline svg { width: 13px; height: 13px; }
+
+.domain-panel {
+  margin-top: 0.6rem;
+  padding: 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.domain-panel p { text-align: left; margin: 0 0 0.5rem; }
+.domain-steps { text-align: left; margin: 0 0 0.75rem; padding-left: 1.25rem; color: var(--ink); }
+.domain-steps li { margin-bottom: 0.35rem; }
+.domain-steps code { background: var(--field); border: 1px solid var(--line); border-radius: 4px; padding: 0.1rem 0.35rem; }
+.domain-help { font-size: 0.85rem; }
+.domain-help a { color: var(--accent); }
+.domain-panel input, .domain-panel button {
+  display: inline-block;
+  width: auto;
+  margin: 0 0.4rem 0.4rem 0;
+}
+.domain-panel .domain-input { width: 220px; }
+.domain-status { font-size: 0.85rem; color: var(--muted); }
+
+.back-link { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
+.back-link:hover { border-bottom-color: var(--ink); }
+
+.admin-table-wrap { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+.admin-table th, .admin-table td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); }
+.admin-table th { color: var(--muted); font-weight: normal; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+
+iframe {
+  width: 100%;
+  height: 420px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+#save-status { margin-left: 0.75rem; color: var(--muted); font-size: 0.9rem; vertical-align: middle; }
+
+.admin-table button { width: auto; margin: 0; padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+
+.btn-secondary {
+  background: var(--field);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-secondary:hover { filter: none; background: var(--paper); }
+
+.admin-table a { color: var(--ink); }
+.admin-table a:hover { color: var(--accent); }
