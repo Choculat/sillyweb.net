@@ -4,7 +4,7 @@ const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
 
 const PUBLIC = path.join(__dirname, '../public');
-const html = fs.readFileSync(path.join(PUBLIC, 'editor.html'), 'utf8')
+const html = fs.readFileSync(path.join(__dirname, '..', 'views', 'editor.html'), 'utf8')
   .replace('<script src="/theme.js"></script>', '')
   .replace(/<script src="(\/editor\/[^"]+?)(\?[^"]*)?"><\/script>/g, (_, src) => (
     `<script>${fs.readFileSync(path.join(PUBLIC, src.replace(/^\//, '')), 'utf8')}</script>`

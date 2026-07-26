@@ -1,5 +1,5 @@
 const APP_URL = process.env.APP_URL || 'https://sillyweb.net';
-const SENDER_EMAIL = 'choculat@sillyweb.net';
+const SENDER_EMAIL = 'noreply@sillyweb.net';
 
 async function send(email, subject, htmlContent) {
   const res = await fetch('https://api.brevo.com/v3/smtp/email', {

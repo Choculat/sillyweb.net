@@ -11,6 +11,26 @@ module.exports = [
     assert.equal(app.headers.get('x-powered-by'), null);
   }),
 
+  sh('app pages get the shared OpenGraph block and user sites keep their own', async () => {
+    const dashboard = await (await fetch(`${BASE}/dashboard`)).text();
+    assert.match(dashboard, /property="og:image" content="https:\/\/sillyweb\.net\/assets\/og\.png"/, 'app page lost its OpenGraph block');
+    assert.match(dashboard, /<title>Dashboard - sillyweb\.net<\/title>/, 'injection clobbered the page title');
+    assert.equal(dashboard.match(/property="og:title"/g).length, 1, 'OpenGraph block was injected twice');
+
+    const user = makeUser('ogowner');
+    const pageId = makePage(user.id);
+    await req(`/api/pages/${pageId}/files/new`, { method: 'POST', token: user.token, body: { filename: 'index.html' } });
+    fs.writeFileSync(
+      path.join(UPLOADS, String(pageId), 'index.html'),
+      '<head><meta property="og:title" content="my own page"></head>',
+    );
+    await req(`/api/pages/${pageId}/publish`, { method: 'POST', token: user.token });
+
+    const site = await (await onHost('ogowner.sillyweb.net')).text();
+    assert.match(site, /content="my own page"/, 'user OpenGraph tag was dropped');
+    assert.ok(!site.includes('assets/og.png'), 'platform OpenGraph leaked into a user site');
+  }),
+
   sh('a site is served on its own subdomain, unsandboxed', async () => {
     const user = makeUser('alice');
     const pageId = makePage(user.id);

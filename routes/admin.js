@@ -1,8 +1,7 @@
 const express = require('express');
-const path = require('node:path');
 const db = require('../db');
 const { requireAuth } = require('../auth');
-const { PUBLIC_DIR } = require('../lib/config');
+const { sendPage } = require('../lib/meta');
 
 const router = express.Router();
 
@@ -14,7 +13,7 @@ function requireAdmin(req, res, next) {
 
 for (const [route, file] of [['/admin', 'admin'], ['/admin/users', 'admin-users'], ['/admin/sites', 'admin-sites']]) {
   router.get(route, requireAuth, requireAdmin, (req, res) => {
-    res.sendFile(path.join(PUBLIC_DIR, `${file}.html`));
+    sendPage(res, file);
   });
 }
 

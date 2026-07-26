@@ -1,8 +1,8 @@
 const express = require('express');
-const path = require('node:path');
 const db = require('../db');
-const { PUBLIC_DIR, PRIMARY_HOSTS, PLATFORM_ZONE, SUSPENDED_NOTICE } = require('../lib/config');
+const { PRIMARY_HOSTS, PLATFORM_ZONE, SUSPENDED_NOTICE } = require('../lib/config');
 const { servePublished } = require('../lib/serve');
+const { sendPage } = require('../lib/meta');
 
 const router = express.Router();
 
@@ -54,8 +54,7 @@ function customDomain(req, res, next) {
 
 for (const route of ['/', '/signup', '/signin', '/dashboard', '/editor/:id', '/reset', '/account']) {
   router.get(route, (req, res) => {
-    const file = route === '/' ? 'index' : route.split('/')[1];
-    res.sendFile(path.join(PUBLIC_DIR, `${file}.html`));
+    sendPage(res, route === '/' ? 'index' : route.split('/')[1]);
   });
 }
 
