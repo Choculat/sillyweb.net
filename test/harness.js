@@ -58,8 +58,9 @@ function onHost(host, urlPath = '/') {
   return fetch(BASE + urlPath, { headers: { 'X-Forwarded-Host': host } });
 }
 
-function req(url, { token, method = 'GET', body, raw } = {}) {
+function req(url, { token, method = 'GET', body, raw, ip } = {}) {
   const headers = {};
+  if (ip) headers['CF-Connecting-IP'] = ip;
   if (token) headers.Cookie = `session=${token}`;
   if (body && !raw) headers['Content-Type'] = 'application/json';
   return fetch(BASE + url, { method, headers, body: raw || (body ? JSON.stringify(body) : undefined), redirect: 'manual' });

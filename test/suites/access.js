@@ -52,7 +52,7 @@ module.exports = [
 
   sh('signing up creates no user until the link is opened', async () => {
     const res = await req('/api/signup', {
-      method: 'POST', body: { email: 'new@example.com', username: 'newbie', password: 'Passw0rd!x' },
+      method: 'POST', ip: '10.0.0.3', body: { email: 'new@example.com', username: 'newbie', password: 'Passw0rd!x' },
     });
     assert.ok([200, 502].includes(res.status), `unexpected signup status ${res.status}`);
     assert.equal(userCount(), 0, 'signup created a user before the email was confirmed');
@@ -76,16 +76,37 @@ module.exports = [
   sh('a taken username cannot be parked as a pending signup', async () => {
     makeUser('taken');
     const res = await req('/api/signup', {
-      method: 'POST', body: { email: 'other@example.com', username: 'taken', password: 'Passw0rd!x' },
+      method: 'POST', ip: '10.0.0.4', body: { email: 'other@example.com', username: 'taken', password: 'Passw0rd!x' },
     });
     assert.equal(res.status, 400, 'signup reserved a username that already exists');
     assert.equal(db().prepare('SELECT COUNT(*) c FROM pending_signups').get().c, 0);
   }),
 
+  sh('availability names which field clashes, and so does signup', async () => {
+    makeUser('claimed');
+    const check = async (query) => (await req(`/api/availability?${query}`)).json();
+
+    assert.equal((await check('username=claimed')).username, 'taken');
+    assert.equal((await check('username=spare')).username, 'free');
+    assert.equal((await check('username=admin')).username, 'taken', 'reserved names should read as taken, not malformed');
+    assert.equal((await check('username=mail')).username, 'taken');
+    assert.equal((await check('username=NoCaps')).username, 'invalid');
+    assert.equal((await check('email=claimed@example.com')).email, 'taken');
+    assert.equal((await check('email=CLAIMED@example.com')).email, 'taken', 'email check must ignore case');
+    assert.equal((await check('email=spare@example.com')).email, 'free');
+    assert.equal((await check('email=nope')).email, 'invalid');
+
+    const signup = (email, username) => req('/api/signup', {
+      method: 'POST', ip: '10.0.0.1', body: { email, username, password: 'Passw0rd!x' },
+    });
+    assert.match((await (await signup('claimed@example.com', 'spare')).json()).error, /email/i);
+    assert.match((await (await signup('spare@example.com', 'claimed')).json()).error, /username/i);
+  }),
+
   sh('passwords are capped at 128 characters', async () => {
     const password = (length) => `A1!${'a'.repeat(length - 3)}`;
     const signup = (username, pw) => req('/api/signup', {
-      method: 'POST', body: { email: `${username}@example.com`, username, password: pw },
+      method: 'POST', ip: '10.0.0.2', body: { email: `${username}@example.com`, username, password: pw },
     });
 
     const tooLong = await signup('longpw', password(129));

@@ -20,7 +20,9 @@
     <p id="success" style="display:none">Check your email for a verification link to finish signing up.</p>
     <form id="form">
       <input name="email" type="email" placeholder="Email" required>
+      <p class="field-hint" id="email-hint"></p>
       <input name="username" placeholder="Username (becomes yourname.sillyweb.net)" required>
+      <p class="field-hint" id="username-hint"></p>
       <input name="password" type="password" placeholder="Password" required>
       <p><small>8+ characters, one uppercase letter, one number, one special character.</small></p>
       <div class="h-captcha" data-sitekey="78bc11c6-ca7c-4336-8bb4-2f0ce506e810"></div>
@@ -28,6 +30,44 @@
     </form>
   </div>
   <script>
+    const MESSAGES = {
+      email: {
+        taken: 'That email already has an account.',
+        invalid: 'That does not look like an email address.',
+        free: 'Looks good.',
+      },
+      username: {
+        taken: 'Taken, try another.',
+        invalid: '3-30 characters, lowercase letters, numbers and hyphens.',
+        free: 'Cool name!',
+      },
+    };
+
+    function watch(field) {
+      const input = document.querySelector(`[name="${field}"]`);
+      const hint = document.getElementById(`${field}-hint`);
+      let timer = null;
+      let latest = 0;
+
+      input.addEventListener('input', () => {
+        clearTimeout(timer);
+        const value = input.value.trim();
+        if (!value) return hint.textContent = '';
+        hint.textContent = 'Checking…';
+        hint.className = 'field-hint';
+        timer = setTimeout(async () => {
+          const ticket = ++latest;
+          const res = await fetch(`/api/availability?${field}=${encodeURIComponent(value)}`);
+          const state = (await res.json())[field];
+          if (ticket !== latest || input.value.trim() !== value) return;
+          hint.textContent = MESSAGES[field][state] || '';
+          hint.className = `field-hint ${state === 'free' ? 'ok' : 'bad'}`;
+        }, 700);
+      });
+    }
+    watch('email');
+    watch('username');
+
     document.getElementById('form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const body = Object.fromEntries(new FormData(e.target));

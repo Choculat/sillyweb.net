@@ -126,4 +126,8 @@ small { color: var(--muted); }
 
 .error { color: var(--accent); text-align: center; font-size: 0.9rem; }
 
+.field-hint { min-height: 1.1rem; margin: -0.35rem 0 0.35rem; font-size: 0.8rem; color: var(--muted); }
+.field-hint.ok { color: #4a7c59; }
+.field-hint.bad { color: var(--accent); }
+
 .h-captcha { margin: 1rem 0; display: flex; justify-content: center; }

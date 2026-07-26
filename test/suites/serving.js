@@ -138,6 +138,22 @@ module.exports = [
     assert.equal((await onHost('owner.sillyweb.net')).status, 200, 'unsuspend did not restore the site');
   }),
 
+  sh('the preview relays link clicks but a published site is left alone', async () => {
+    const user = makeUser('relay');
+    const pageId = makePage(user.id);
+    await req(`/api/pages/${pageId}/files/new`, { method: 'POST', token: user.token, body: { filename: 'index.html' } });
+    fs.writeFileSync(path.join(UPLOADS, String(pageId), 'index.html'), '<a href="/about.html">about</a>');
+    await req(`/api/pages/${pageId}/publish`, { method: 'POST', token: user.token });
+
+    const page = await (await req(`/api/pages/${pageId}`, { token: user.token })).json();
+    const preview = await (await fetch(BASE + page.page.previewUrl)).text();
+    assert.match(preview, /previewNav/, 'preview lost its navigation relay');
+
+    const live = await (await onHost('relay.sillyweb.net')).text();
+    assert.ok(!live.includes('previewNav'), 'the relay script leaked into a published site');
+    assert.match(live, /<a href="\/about\.html">about<\/a>/, 'published markup was altered');
+  }),
+
   sh('suspending a site also kills its preview link', async () => {
     const owner = makeUser('shady');
     const admin = makeUser('mod2', 1);

@@ -69,7 +69,7 @@ document.addEventListener('themechange', (e) => {
 });
 function refreshPreview() {
   if (siteSuspended || !previewUrl) return;
-  if (previewPath && !files.some((f) => f.filename === previewPath)) previewPath = '';
+  if (previewPath && !previewPath.endsWith('/') && !files.some((f) => f.filename === previewPath)) previewPath = '';
   const rel = previewPath.split('/').map(encodeURIComponent).join('/');
   const back = previewFrames[1 - activeFrame];
   back.onload = () => {
@@ -79,6 +79,19 @@ function refreshPreview() {
   };
   back.src = `${previewUrl}${rel}?t=${Date.now()}`;
 }
+
+window.addEventListener('message', (e) => {
+  const target = e.data && e.data.previewNav;
+  if (typeof target !== 'string' || !previewUrl) return;
+  if (!previewFrames.some((f) => f.contentWindow === e.source)) return;
+  if (!target.startsWith(previewUrl)) return;
+  try {
+    previewPath = decodeURIComponent(target.slice(previewUrl.length).split('?')[0]);
+  } catch {
+    return;
+  }
+  refreshPreview();
+});
 const indent = (depth) => (0.5 + depth * 0.9) + 'rem';
 
 function flash(msg) {

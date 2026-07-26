@@ -15,6 +15,30 @@ const HOUR = 60 * 60 * 1000;
 const randomToken = () => crypto.randomBytes(32).toString('hex');
 const expiresIn = (ms) => new Date(Date.now() + ms).toISOString();
 
+const EMAIL_TAKEN = 'That email already has an account. Try signing in instead.';
+const USERNAME_TAKEN = 'That username is taken. Pick another one.';
+
+function takenError(address, username) {
+  if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(address)) return EMAIL_TAKEN;
+  if (db.prepare('SELECT 1 FROM users WHERE username = ?').get(username)) return USERNAME_TAKEN;
+  return null;
+}
+
+router.get('/api/availability', rateLimit(60, 60 * 1000), (req, res) => {
+  const { username, email } = req.query;
+  const result = {};
+  if (typeof username === 'string' && username) {
+    result.username = !USERNAME_RULE.test(username) ? 'invalid'
+      : RESERVED.has(username) || db.prepare('SELECT 1 FROM users WHERE username = ?').get(username) ? 'taken' : 'free';
+  }
+  if (typeof email === 'string' && email) {
+    const address = email.trim().toLowerCase();
+    result.email = !EMAIL_RULE.test(address) ? 'invalid'
+      : db.prepare('SELECT 1 FROM users WHERE email = ?').get(address) ? 'taken' : 'free';
+  }
+  res.json(result);
+});
+
 router.post('/api/signup', rateLimit(5, 60 * 1000), async (req, res) => {
   const { email, username, password, captcha } = req.body || {};
   if (!email || !username || !password) {
@@ -34,9 +58,8 @@ router.post('/api/signup', rateLimit(5, 60 * 1000), async (req, res) => {
   }
 
   const address = email.toLowerCase();
-  if (db.prepare('SELECT 1 FROM users WHERE email = ? OR username = ?').get(address, username)) {
-    return res.status(400).json({ error: 'Email or username already taken.' });
-  }
+  const clash = takenError(address, username);
+  if (clash) return res.status(400).json({ error: clash });
 
   const verifyToken = randomToken();
   db.prepare("DELETE FROM pending_signups WHERE expires_at < datetime('now') OR email = ? OR username = ?")
@@ -64,13 +87,16 @@ router.get('/verify', (req, res) => {
     return res.status(400).send('Invalid or expired verification link.');
   }
 
+  const clash = takenError(pending.email, pending.username);
+  if (clash) return res.status(400).send(`${clash} It was claimed while this link was waiting.`);
+
   let userId;
   try {
     userId = db.prepare('INSERT INTO users (email, username, password_hash) VALUES (?, ?, ?)')
       .run(pending.email, pending.username, pending.password_hash).lastInsertRowid;
   } catch (err) {
     if (String(err.message).includes('UNIQUE')) {
-      return res.status(400).send('That email or username was taken while this link was waiting.');
+      return res.status(400).send('That email or username was claimed a moment ago. Please sign up again.');
     }
     throw err;
   }
