@@ -93,15 +93,56 @@ body.editor-page {
 
 .ide-tree-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.2rem;
   font-size: 11px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding: 0.4rem 0.5rem;
+  padding: 0.35rem 0.35rem 0.45rem;
 }
-#tree-usage { text-transform: none; letter-spacing: normal; }
+.ide-tree-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  min-height: 28px;
+}
+.tree-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+.tree-actions .icon-btn {
+  width: auto;
+  margin: 0;
+  padding: 0.28rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+.tree-actions .icon-btn svg { width: 15px; height: 15px; }
+.tree-actions .icon-btn:hover {
+  filter: none;
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--ink);
+}
+#tree-usage {
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0 0.15rem;
+  font-size: 11px;
+}
 
 .ide-tab {
   display: flex;

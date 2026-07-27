@@ -15,6 +15,18 @@ async function apiError(url, body) {
   return data.error || 'Something went wrong.';
 }
 
+// Toolbar / empty-state: create under the selected folder, or the parent of a
+// selected file, otherwise at the site root (same idea as most IDEs).
+function newItemDir() {
+  if (selected.size !== 1) return '';
+  const p = [...selected][0];
+  if (files.some((f) => f.filename.startsWith(p + '/'))) return p;
+  if (files.some((f) => f.filename === p)) {
+    return p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '';
+  }
+  return p;
+}
+
 async function startNew(dir, isFolder) {
   let created = null;
   const name = await showModal({

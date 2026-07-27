@@ -104,6 +104,8 @@ async function load() {
 }
 
 document.getElementById('empty-create').addEventListener('click', () => startNew('', false));
+document.getElementById('new-file').addEventListener('click', () => startNew(newItemDir(), false));
+document.getElementById('new-folder').addEventListener('click', () => startNew(newItemDir(), true));
 
 async function save() {
   if (!currentFile || !isTextFile(currentFile.filename)) return true;

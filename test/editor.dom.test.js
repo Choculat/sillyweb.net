@@ -182,6 +182,20 @@ const rowFor = (name) => [...doc.querySelectorAll('.tree-row')].find((r) => r.qu
   assert.ok(serverFiles.some((f) => f.filename === 'renamed.html'), 'Ctrl+Y should redo the rename');
   console.log('PASS: undo/redo a rename');
 
+  assert.ok(doc.getElementById('new-file'), 'Explorer should have a New File button');
+  assert.ok(doc.getElementById('new-folder'), 'Explorer should have a New Folder button');
+  click(doc.getElementById('new-file'));
+  await tick(2);
+  assert.equal(doc.getElementById('modal-overlay').style.display, 'flex', 'New File button should open a modal');
+  assert.equal(doc.getElementById('modal-title').textContent, 'New File', 'New File button should open the create-file modal');
+  click(doc.getElementById('modal-cancel'));
+  await tick();
+  click(doc.getElementById('new-folder'));
+  await tick(2);
+  assert.equal(doc.getElementById('modal-title').textContent, 'New Folder', 'New Folder button should open the create-folder modal');
+  click(doc.getElementById('modal-cancel'));
+  console.log('PASS: Explorer New File / New Folder buttons open the right modals');
+
   console.log('\nAll DOM tests passed.');
   process.exit(0);
 })().catch((e) => { console.error('FAIL:', e.message, '\n', e.stack); process.exit(1); });
