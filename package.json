@@ -23,7 +23,7 @@
   "dependencies": {
     "express": "^5.2.1",
     "monaco-editor": "^0.56.0",
-    "multer": "^2.2.0"
+    "multer": "^2.3.0"
   },
   "devDependencies": {
     "jsdom": "^29.1.1",
